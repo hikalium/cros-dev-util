@@ -895,16 +895,16 @@ class Bundle:
 
     # Get the flashmap so we know what to build
     pack = PackFirmware(self._tools, self._out)
+    if self._force_rw:
+        fdt.PutInteger('/flash/rw-a-vblock', 'preamble-flags', 0)
+        fdt.PutInteger('/flash/rw-b-vblock', 'preamble-flags', 0)
+
     pack.SelectFdt(fdt)
 
     # Get all our blobs ready
     pack.AddProperty('boot', self.uboot_fname)
     pack.AddProperty('skeleton', self.skeleton_fname)
     pack.AddProperty('dtb', fdt.fname)
-
-    if self._force_rw:
-        fdt.PutInteger('/flash/rw-a-vblock', 'preamble-flags', 0)
-        fdt.PutInteger('/flash/rw-b-vblock', 'preamble-flags', 0)
 
     # If we are writing a kernel, add its offset from TEXT_BASE to the fdt.
     if self.kernel_fname:
