@@ -24,6 +24,11 @@ exynos_addresses = {
         'bl2': 0x02024400,
         'u-boot': 0x23e00000,
         },
+    'samsung,exynos5422': {
+        'bl1': 0x02022400,
+        'bl2': 0x02024400,
+        'u-boot': 0x23e00000,
+        },
   }
 
 
@@ -603,10 +608,7 @@ class WriteFirmware:
       if addresses:
         break
     else:
-      # TODO(sjg@chromium.org): Remove this when upstream U-Boot has the
-      # 'samsung,exynos5250' compatible string.
-      addresses = exynos_addresses.get('samsung,exynos5250')
-      self._out.Warning('No exynos compatible string, assuming Exynos 5250')
+      raise CmdError('No exynos compatible string found')
 
     if not addresses:
       raise CmdError("Unable to determine USB download addresses, compatible" +
