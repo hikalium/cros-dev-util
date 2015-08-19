@@ -1004,6 +1004,13 @@ class Bundle:
 
     image = pack.GetProperty('image')
     self._tools.OutputSize('Final image', image)
+
+    # Call gbb_utility with -s <root_key> on final image to add rootkey hash
+    keydir = self._tools.Filename(self._keydir)
+    gbb_set_command = ['-s',
+                       '--rootkey=%s/root_key.vbpubk' % keydir,
+                       image]
+    self._tools.Run('gbb_utility', gbb_set_command)
     return image, pack
 
   def SelectFdt(self, fdt_fname, use_defaults):
