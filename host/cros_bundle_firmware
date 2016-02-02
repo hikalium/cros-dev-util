@@ -254,8 +254,8 @@ changes to default flags (e.g.-load-option-roms,+force-dev-boot-usb).
 
 def _RunPostProcessScript(options, output, tools):
   if options.board == "smaug":
-    args = [options.key, options.output]
-    tools.Run('nv_pkc_signing.sh', args)
+    args = ['bootloader', options.key + '/nv_pkc.pem', options.output, 'tegra210']
+    tools.Run('sign_nv_cbootimage.sh', args)
 
 def _Test():
   """Run any built-in tests."""
