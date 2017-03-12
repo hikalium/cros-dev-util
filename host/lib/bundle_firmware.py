@@ -1010,7 +1010,7 @@ class Bundle:
                        'ro-unused', 'ro-frid-pad', 'bios-unusable',
                        'device-extension', 'unused-hole', 'rw-gpt-primary',
                        'rw-gpt-secondary', 'rw-nvram', 'ro-unused-1',
-                       'ro-unused-2', 'rw-var-mrc-cache']:
+                       'ro-unused-2', 'rw-var-mrc-cache', 'fpf-status']:
             fdt.PutString(fdt_path, 'type', 'wiped')
             fdt.PutIntList(fdt_path, 'wipe-value', [0xff])
             self._GenerateWiped(label, area['size'], 0xff)
