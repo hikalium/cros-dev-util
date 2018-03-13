@@ -13,7 +13,6 @@ import os
 import time
 from xml.dom import minidom
 
-
 # Update events and result codes.
 EVENT_TYPE_UNKNOWN = 0
 EVENT_TYPE_DOWNLOAD_COMPLETE = 1
@@ -28,10 +27,6 @@ EVENT_RESULT_SUCCESS_REBOOT = 2
 EVENT_RESULT_UPDATE_DEFERRED = 9
 
 
-# A default app_id value.
-_APP_ID = '87efface-864d-49a5-9bb3-4b050a7c227a'
-
-
 # Responses for the various Omaha protocols indexed by the protocol version.
 #
 # Update available responses:
@@ -39,7 +34,7 @@ _UPDATE_RESPONSE = {}
 _UPDATE_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <updatecheck
         ChromeOSVersion="999999.0.0"
@@ -56,7 +51,7 @@ _UPDATE_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
 _UPDATE_RESPONSE['3.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <response protocol="3.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <updatecheck status="ok">
         <urls>
@@ -85,7 +80,7 @@ _NO_UPDATE_RESPONSE = {}
 _NO_UPDATE_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <updatecheck status="noupdate"/>
     </app>
@@ -93,7 +88,7 @@ _NO_UPDATE_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
 _NO_UPDATE_RESPONSE['3.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <response protocol="3.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <updatecheck status="noupdate"/>
     </app>
@@ -105,7 +100,7 @@ _EVENT_RESPONSE = {}
 _EVENT_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <event status="ok"/>
     </app>
@@ -113,7 +108,7 @@ _EVENT_RESPONSE['2.0'] = """<?xml version="1.0" encoding="UTF-8"?>
 _EVENT_RESPONSE['3.0'] = """<?xml version="1.0" encoding="UTF-8"?>
   <response protocol="3.0">
     <daystart elapsed_seconds="%(time_elapsed)s"/>
-    <app appid="{%(appid)s}" status="ok">
+    <app appid="%(appid)s" status="ok">
       <ping status="ok"/>
       <event status="ok"/>
     </app>
@@ -130,10 +125,10 @@ def GetSecondsSinceMidnight():
   return now[3] * 3600 + now[4] * 60 + now[5]
 
 
-def GetCommonResponseValues():
+def GetCommonResponseValues(appid):
   """Returns a dictionary of default values for the response."""
   response_values = {}
-  response_values['appid'] = _APP_ID
+  response_values['appid'] = appid
   response_values['time_elapsed'] = GetSecondsSinceMidnight()
   return response_values
 
@@ -154,7 +149,7 @@ def GetSubstitutedResponse(response_dict, protocol, response_values):
 
 
 def GetUpdateResponse(sha1, sha256, size, url, is_delta_format, metadata_size,
-                      signed_metadata_hash, public_key, protocol,
+                      signed_metadata_hash, public_key, protocol, appid,
                       critical_update=False):
   """Returns a protocol-specific response to the client for a new update.
 
@@ -168,12 +163,13 @@ def GetUpdateResponse(sha1, sha256, size, url, is_delta_format, metadata_size,
     signed_metadata_hash: the signed metadata hash or None if not signed.
     public_key: the public key to transmit to the client or None if no key.
     protocol: client's protocol version from the request Xml.
+    appid: the appid associated with the response.
     critical_update: whether this is a critical update.
 
   Returns:
     Xml string to be passed back to client.
   """
-  response_values = GetCommonResponseValues()
+  response_values = GetCommonResponseValues(appid)
   response_values['sha1'] = sha1
   response_values['sha256'] = sha256
   # sha256 is base64 encoded, encode it to hex.
@@ -203,29 +199,31 @@ def GetUpdateResponse(sha1, sha256, size, url, is_delta_format, metadata_size,
   return GetSubstitutedResponse(_UPDATE_RESPONSE, protocol, response_values)
 
 
-def GetNoUpdateResponse(protocol):
+def GetNoUpdateResponse(protocol, appid):
   """Returns a protocol-specific response to the client for no update.
 
   Args:
     protocol: client's protocol version from the request Xml.
+    appid: the appid associated with the response.
 
   Returns:
     Xml string to be passed back to client.
   """
-  response_values = GetCommonResponseValues()
+  response_values = GetCommonResponseValues(appid)
   return GetSubstitutedResponse(_NO_UPDATE_RESPONSE, protocol, response_values)
 
 
-def GetEventResponse(protocol):
+def GetEventResponse(protocol, appid):
   """Returns a protocol-specific response to a client event notification.
 
   Args:
     protocol: client's protocol version from the request Xml.
+    appid: the appid associated with the response.
 
   Returns:
     Xml string to be passed back to client.
   """
-  response_values = GetCommonResponseValues()
+  response_values = GetCommonResponseValues(appid)
   return GetSubstitutedResponse(_EVENT_RESPONSE, protocol, response_values)
 
 
