@@ -60,7 +60,7 @@ fitimage_outputs_dir = 'asset_generation/outputs'
 fitimage_cmd = './gen_fit_image.sh %s <path_to_fit_kit> -b'
 
 # Script to add fitimage sources
-fitimage_script = 'files/add_fitimage_qs.sh'
+fitimage_script = 'files/add_fitimage.sh'
 
 # List of packages to cros_workon
 workon_pkgs = [
